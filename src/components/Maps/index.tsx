@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet ,PermissionsAndroid,ActivityIndicator  } from 'react-native';
+import { View, StyleSheet ,ActivityIndicator,AppState } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import {  requestLocationPermission, storeLocation, retrieveLocations } from '../../permission';
+import startBackgroundSync from '../../BackgroundSync';
+import {  requestLocationPermission, storeLocation, retrieveLocations,addLocationInBackground } from '../../permission';
 const MapComponent: React.FC = () => {
   const [region, setRegion] = useState<Region | null>(null);
   console.log('region', region)
@@ -25,6 +26,8 @@ const MapComponent: React.FC = () => {
 
             // Store the user's location
             await storeLocation({ latitude, longitude, timestamp: new Date().toISOString() });
+         // Add location to background synchronization
+         await addLocationInBackground({ latitude, longitude, timestamp: new Date().toISOString() });
           },
           (error) => {
             console.log('Error fetching location:', error.message);
@@ -49,6 +52,8 @@ const MapComponent: React.FC = () => {
     };
 
     retrieveStoredLocations();
+      // Start background synchronization
+      startBackgroundSync();
   }, []);
 
   return (

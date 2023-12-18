@@ -1,8 +1,13 @@
 
+import  AsyncStorage  from '@react-native-async-storage/async-storage';
 import { PermissionsAndroid } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+export interface Location {
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+}
 
-export const requestLocationPermission = async () => {
+ export const requestLocationPermission = async () => {
   try {
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -43,5 +48,16 @@ export const retrieveLocations = async (): Promise<Location[]> => {
   } catch (error) {
     console.error('Error retrieving locations:', error);
     return [];
+  }
+};
+
+export const addLocationInBackground = async (location: Location) => {
+  try {
+    const existingLocations = await AsyncStorage.getItem('userLocations');
+    const newLocations = existingLocations ? [...JSON.parse(existingLocations), location] : [location];
+
+    await AsyncStorage.setItem('userLocations', JSON.stringify(newLocations));
+  } catch (error) {
+    console.error('Error adding location in background:', error);
   }
 };
